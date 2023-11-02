@@ -16,7 +16,7 @@ In collaboration with the chosen client scenario via ChatGPT:
 4. Craft SQL queries that give managerial insight into the clients business.
 
 ## Conversation with ChatGPT
-
+! [Prompting the ChatGPT model](1-Prompt.png)
 
 ## Creation of Entity Relationship diagram
 
