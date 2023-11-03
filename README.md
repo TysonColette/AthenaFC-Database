@@ -193,6 +193,301 @@ This was an imperfect method which does not tie the value of the ticket to the l
 ### Rest of the Data
 The rest of the data was generated using similar methods that tried to maintain accuracy as best as possible
 
-
 ## 4. Querying the Data
+### Queries
+
+#### Query 1:
+**Purpose:** 
+**Query:**
+```MySQL
+Select
+    PlayerID,
+    Name,
+    concat('$', format((Salary / 34), 2)) as 'Salary per game'
+From
+    Player;
+```
+**Result:** *(Sample of 10/45 Players)*
+| PlayerID      | Name      | Salary per game      |
+|------------- | --------- | -------------------- |
+| 1             | John Smith | $8,823.53            |
+| 2             | Luiz Alves | $132,352.94          |
+| 3             | James O'Connell | $73,529.41           |
+| 4             | Robert Anderson | $20,588.24           |
+| 5             | Carlos Hernandez | $25,000.00           |
+| 6             | Felix Müller | $44,117.65           |
+| 7             | Mateo Rodriguez | $55,882.35           |
+| 8             | Giovanni Bianchi | $26,470.59           |
+| 9             | Luc Dubois | $61,764.71           |
+| 10            | Brian Johnson | $35,294.12           |
+
+#### Query 2:
+**Purpose:** 
+**Query:**
+```MySQL
+Select
+	Nationality,
+	sum(Goals_Scored) as 'Total Goals'
+From 
+	Player
+Group by
+	Nationality
+Order by
+	'Total Goals' desc;
+```
+**Result:**
+| Nationality      | Total Goals      |
+| ---------------- | ---------------- |
+| United States    | 65               |
+| Brazil           | 64               |
+| England          | 22               |
+| Spain            | 4                |
+| Germany          | 18               |
+| Argentina        | 27               |
+| Italy            | 9                |
+| France           | 12               |
+| Netherlands      | 8                |
+| Portugal         | 7                |
+| Nigeria          | 14               |
+| Colombia         | 17               |
+| Australia        | 17               |
+| Mexico           | 6                |
+  
+#### Query 3:
+**Purpose:** 
+**Query:**
+```MySQL
+Select
+    Venue,
+    concat(format(avg(Attendance), 2), '%') as 'Average Attendance',
+    concat('$', format(avg(Ticket_Revenue), 2)) as 'Average Ticket Revenue'
+From
+    Matches
+Group by
+    Venue
+Order by
+    Venue;
+```
+**Result:**
+| Venue      | Average Attendance      | Average Ticket Revenue      |
+| ---------- | ----------------------- | --------------------------- |
+| Away       | 87.00%                  | $2,697,000.00               |
+| Home       | 89.82%                  | $2,784,529.41               |
+
+#### Query 4:
+**Purpose:** 
+**Query:**
+```MySQL
+Select
+	s.Company_Name,
+    concat('$', format(Avg(Deal_Value), 2)) as 'Avg Deal Value'
+From
+    Sponsorship ship
+Join
+    Sponsor s on ship.Sponsor_SponsorID = s.SponsorID
+Group by
+    s.Company_Name
+Order by 
+	'Avg Deal Value' desc;
+```
+**Result:**
+| Company_Name      | Avg Deal Value      |
+| ----------------- | ------------------- |
+| Adidas            | $157,500.00         |
+| Emirates          | $325,000.00         |
+| Chevrolet         | $183,333.33         |
+| Coca-Cola         | $230,000.00         |
+| Mastercard        | $313,333.33         |
+| Budweiser         | $286,666.67         |
+| Sony              | $173,333.33         |
+| BP                | $276,666.67         |
+
+#### Query 5:
+**Purpose:** 
+**Query:**
+```MySQL
+Select
+  p.Name,
+  p.Position,
+  concat('$', format(p.Salary / p.Goals_Scored, 2)) as 'Cost Per Contribution',
+  format((1 / (p.Salary / p.Goals_Scored)) * 10000, 5) as Efficiency 
+From 
+  Player p
+Join (
+  Select Position, Min(Salary / Goals_Scored) as MinEfficiency
+  From Player
+  Where Goals_Scored > 0 or Assists > 0
+  Group by Position
+) as MinEffs on p.Position = MinEffs.Position
+and (p.Salary / p.Goals_Scored) = MinEffs.MinEfficiency
+Order by p.Position, Efficiency;
+```
+**Result:**
+| Name      | Position      | Cost Per Contribution      | Efficiency      |
+| --------- | ------------- | -------------------------- | --------------- |
+| Liam Smith | Center Forward (CF) | $166,666.67                | 0.06000         |
+| Felix Müller | Central Attacking Midfielder (CAM) | $250,000.00                | 0.04000         |
+| Carter Evans | Central Defensive Midfielder (CDM) | $475,000.00                | 0.02105         |
+| Ethan Davis | Central Midfielder (CM) | $257,142.86                | 0.03889         |
+| Alejandro Gomez | Defensive Midfielder (DM) | $733,333.33                | 0.01364         |
+| Brandon Miller | Forward       | $150,000.00                | 0.06667         |
+| Lars van der Meer | Left Midfielder (LM) | $320,000.00                | 0.03125         |
+| Emeka Okafor | Left Wing (LW) | $287,500.00                | 0.03478         |
+| Carlos Jiménez | Left-Back (LB) | $1,700,000.00              | 0.00588         |
+| Diego Lopez | Right Midfielder (RM) | $400,000.00                | 0.02500         |
+| Tyler Johnson | Right Wing (RW) | $261,111.11                | 0.03830         |
+| Brandon Wilson | Right-Back (RB) | $1,800,000.00              | 0.00556         |
+| Liam Taylor | Second Striker (SS) | $126,470.59                | 0.07907         |
+| Logan Wright | Striker       | $113,043.48                | 0.08846         |
+| Giovanni Bianchi | Sweeper       | $1,050,000.00              | 0.00952         |
+| Felix Müller | Wing-Back (WB) | $600,000.00                | 0.01667         |
+| Felipe Costa | Winger        | $255,555.56                | 0.03913         |
+
+```MySQL
+Select
+  p.Name,
+  p.Position,
+  concat('$', format((Salary / (Goals_Scored * (2/3) + Assists * (1/3))), 2)) as 'Cost Per Contribution',
+  format((1 / (p.Salary / (p.Goals_Scored * (2/3) + p.Assists * (1/3)))) * 10000, 5) as Efficiency 
+From 
+  Player p
+Join (
+  Select Position, Min((Salary / (Goals_Scored * (2/3) + Assists * (1/3)))) as MinEfficiency
+  From Player
+  Where Goals_Scored > 0 or Assists > 0
+  Group by Position
+) as MinEffs on p.Position = MinEffs.Position
+and (p.Salary / (p.Goals_Scored * (2/3) + p.Assists * (1/3))) = MinEffs.MinEfficiency
+Order by p.Position, Efficiency;
+```
+**Result:**
+| Name      | Position      | Cost Per Contribution      | Efficiency      |
+| --------- | ------------- | -------------------------- | --------------- |
+| Liam Smith | Center Forward (CF) | $214,285.71                | 0.04667         |
+| Felix Müller | Central Attacking Midfielder (CAM) | $236,842.11                | 0.04222         |
+| Carter Evans | Central Defensive Midfielder (CDM) | $475,000.00                | 0.02105         |
+| Ethan Davis | Central Midfielder (CM) | $270,000.00                | 0.03704         |
+| Jasper van der Meer | Defensive Midfielder (DM) | $627,272.73                | 0.01594         |
+| Brandon Miller | Forward       | $185,294.12                | 0.05397         |
+| Lars van der Meer | Left Midfielder (LM) | $342,857.14                | 0.02917         |
+| Emeka Okafor | Left Wing (LW) | $313,636.36                | 0.03188         |
+| Carlos Jiménez | Left-Back (LB) | $1,275,000.00              | 0.00784         |
+| Diego Castillo | Right Midfielder (RM) | $414,705.88                | 0.02411         |
+| Tyler Johnson | Right Wing (RW) | $306,521.74                | 0.03262         |
+| Brandon Wilson | Right-Back (RB) | $1,350,000.00              | 0.00741         |
+| Liam Taylor | Second Striker (SS) | $153,571.43                | 0.06512         |
+| Ricardo Silva | Striker       | $146,938.78                | 0.06806         |
+| Giovanni Bianchi | Sweeper       | $1,260,000.00              | 0.00794         |
+| Felix Müller | Wing-Back (WB) | $553,846.15                | 0.01806         |
+| Felipe Costa | Winger        | $300,000.00                | 0.03333         |
+
+#### Query 6:
+**Purpose:** 
+**Query:**
+```MySQL
+Select
+    s.StaffID, 
+    s.Name, 
+    s.Job,
+    concat('$', format(s.Salary, 2)),
+    count(phs.Staff_StaffID) as Player_Interactions,
+	concat('$', format(s.Salary / nullif(count(phs.Staff_StaffID), 0), 2)) as Weighted_Cost
+From
+    Staff s
+Left Join 
+    Player_has_Staff phs on s.StaffID = phs.Staff_StaffID
+Group by 
+    s.StaffID 
+Having 
+	count(phs.Staff_StaffID) != 0
+Order by
+	Weighted_Cost desc;
+```
+**Result:**
+| StaffID      | Name      | Job      | concat('$', format(s.Salary, 2))      | Player_Interactions      | Weighted_Cost      |
+| ------------ | --------- | -------- | ------------------------------------- | ------------------------ | ------------------ |
+| 1            | Michael Johnson | Head Coach | $1,500,000.00                         | 45                       | $33,333.33         |
+| 5            | John Walters | Physiotherapist | $100,000.00                           | 30                       | $3,333.33          |
+| 4            | Robert Clark | Fitness Coach | $120,000.00                           | 45                       | $2,666.67          |
+| 2            | James Thompson | Assistant Coach | $500,000.00                           | 45                       | $11,111.11         |
+| 3            | Sophia Martinez | Goalkeeping Coach | $200,000.00                           | 2                        | $100,000.00        |
+
+#### Query 7:
+**Purpose:** 
+**Query:**
+```MySQL
+Select 
+    PlayerID, 
+    Name,
+    Salary
+From
+    Player p
+Where 
+    Not Exists (
+        Select 1 From Sponsorship s Where p.PlayerID = s.Player_PlayerID
+    )
+And 
+    p.Salary > (Select avg(Salary) from Player);
+``` 
+**Result:**
+| PlayerID      | Name      | Salary      |
+| ------------- | --------- | ----------- |
+| 9             | Luc Dubois | 2100000     |
+| 18            | Michael Thompson | 2100000     |
+| 22            | Luc Dubois | 2200000     |
+| 25            | Giovanni Bianchi | 2100000     |
+| 26            | Matias Rodriguez | 2300000     |
+| 30            | Alejandro Gomez | 2200000     |
+| 31            | Miguel Santos | 2250000     |
+| 34            | Liam Taylor | 2150000     |
+| 40            | Lucas Fernandez | 2250000     |
+| 41            | Brandon Miller | 2100000     |
+| 43            | Diego Ramirez | 2200000     |
+| 44            | Jordan Smith | 2150000     |
+
+#### Query 8:
+**Purpose:**
+**Query:**
+```MySQL
+Select
+    PlayerID,
+    Name,
+    concat('$', format(Salary, 2)) as 'Salary',
+    Position,
+    Goals_Scored,
+    Assists,
+    format((Goals_Scored / NULLIF(Assists, 0)), 2) as G2A_Ratio
+From
+    Player 
+Where
+    Assists > 0
+Order by
+    G2A_Ratio desc;
+```
+**Result:** *(Sample of 10/40 Players with assists)
+| PlayerID      | Name      | Salary      | Position      | Goals_Scored      | Assists      | G2A_Ratio      |
+| ------------- | --------- | ----------- | ------------- | ----------------- | ------------ | -------------- |
+| 32            | Logan Wright | $2,600,000.00 | Striker       | 23                | 6            | 3.83           |
+| 27            | Liam Smith | $2,500,000.00 | Center Forward (CF) | 15                | 5            | 3.00           |
+| 11            | Ricardo Silva | $2,400,000.00 | Striker       | 21                | 7            | 3.00           |
+| 41            | Brandon Miller | $2,100,000.00 | Forward       | 14                | 6            | 2.33           |
+| 34            | Liam Taylor | $2,150,000.00 | Second Striker (SS) | 17                | 8            | 2.12           |
+| 25            | Giovanni Bianchi | $2,100,000.00 | Sweeper       | 2                 | 1            | 2.00           |
+| 15            | Emeka Okafor | $1,800,000.00 | Right Wing (RW) | 6                 | 3            | 2.00           |
+| 21            | Juan Torres | $2,400,000.00 | Forward       | 12                | 6            | 2.00           |
+| 24            | Felipe Costa | $2,300,000.00 | Winger        | 9                 | 5            | 1.80           |
+| 36            | Tyler Johnson | $2,350,000.00 | Right Wing (RW) | 9                 | 5            | 1.80           |
+### Feature Map
+| Feature Map                    | Query 1 | Query 2 | Query 3 | Query 4 | Query 5 | Query 6 | Query 7 | Query 8 |
+|--------------------------------|---------|---------|---------|---------|---------|---------|---------|---------|
+| Multiple Table Join            |    -    |    -    |    -    |    X    |    X    |    X    |    -    |    -    |
+| Traditional Subquery           |    -    |    -    |    -    |    -    |    -    |    -    |    X    |    -    |
+| Correlated Subquery            |    -    |    -    |    -    |    -    |    X    |    -    |    -    |    -    |
+| GROUP BY                       |    -    |    X    |    X    |    X    |    X    |    X    |    -    |    -    |
+| GROUP BY with HAVING           |    -    |    -    |    -    |    -    |    -    |    X    |    -    |    -    |
+| Multi-Condition WHERE          |    -    |    -    |    -    |    -    |    X    |    -    |    X    |    -    |
+| Built-in Functions (e.g., AVG) |    -    |    X    |    X    |    X    |    X    |    -    |    X    |    X    |
+| Calculated Field               |    X    |    -    |    -    |    -    |    X    |    -    |    -    |    X    |
+| NOT EXISTS                     |    -    |    -    |    -    |    -    |    -    |    -    |    X    |    -    |
+
 
