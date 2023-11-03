@@ -162,7 +162,7 @@ Values
 
 ```
 ### Fans
-The **Fans** table was populated with the 1000 best fans of the team. These 1000 people were generated using Mockaroo
+The **Fans** table was populated with the 999 best fans of the team. These 999 people were generated using Mockaroo
 
 ### Tickets
 The **Tickets** table was then populated using the following statement:
