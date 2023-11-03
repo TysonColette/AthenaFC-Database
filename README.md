@@ -71,7 +71,7 @@ After consulting with ChatGPT, the following database was drawn up, taking insig
 ## 3. Populating the Database with Artificial Data 
 ### Player
 The majority of the data was designed to be as realistic as possible.
-For **Player** the aim was to design ficitonal players from all over the world and assign them a name that was suitable.
+For **Player** the aim was to design ficitonal players from all over the world and assign them a name that was suitable. Theres even two French players with the same name!
 These ficional players were created by ChatGPT using GPT-4.
 Here is a sample of the **Player** data input:
 ```MySQL
@@ -432,7 +432,7 @@ It identifies players who are not sponsored but have above-average salaries. Man
 Select 
     PlayerID, 
     Name,
-    Salary
+    concat('$', format(Salary, 2)) as 'Salary'
 From
     Player p
 Where 
@@ -445,18 +445,18 @@ And
 **Result:**
 | PlayerID      | Name      | Salary      |
 | ------------- | --------- | ----------- |
-| 9             | Luc Dubois | 2100000     |
-| 18            | Michael Thompson | 2100000     |
-| 22            | Luc Dubois | 2200000     |
-| 25            | Giovanni Bianchi | 2100000     |
-| 26            | Matias Rodriguez | 2300000     |
-| 30            | Alejandro Gomez | 2200000     |
-| 31            | Miguel Santos | 2250000     |
-| 34            | Liam Taylor | 2150000     |
-| 40            | Lucas Fernandez | 2250000     |
-| 41            | Brandon Miller | 2100000     |
-| 43            | Diego Ramirez | 2200000     |
-| 44            | Jordan Smith | 2150000     |
+| 9             | Luc Dubois | $2,100,000.00 |
+| 18            | Michael Thompson | $2,100,000.00 |
+| 22            | Luc Dubois | $2,200,000.00 |
+| 25            | Giovanni Bianchi | $2,100,000.00 |
+| 26            | Matias Rodriguez | $2,300,000.00 |
+| 30            | Alejandro Gomez | $2,200,000.00 |
+| 31            | Miguel Santos | $2,250,000.00 |
+| 34            | Liam Taylor | $2,150,000.00 |
+| 40            | Lucas Fernandez | $2,250,000.00 |
+| 41            | Brandon Miller | $2,100,000.00 |
+| 43            | Diego Ramirez | $2,200,000.00 |
+| 44            | Jordan Smith | $2,150,000.00 |
 
 #### Query 8:
 **Purpose:**
