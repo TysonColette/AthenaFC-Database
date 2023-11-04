@@ -288,7 +288,7 @@ This calculates the average sponsorship deal value for each sponsoring company. 
 ```MySQL
 Select
 	s.Company_Name,
-    concat('$', format(Avg(Deal_Value), 2)) as 'Avg Deal Value'
+    concat('$', format(Avg(Deal_Value), 2)) as AvgDealValue
 From
     Sponsorship ship
 Join
@@ -296,19 +296,19 @@ Join
 Group by
     s.Company_Name
 Order by 
-	'Avg Deal Value' desc;
+	AvgDealValue desc;  
 ```
 **Result:**
 | Company_Name      | Avg Deal Value      |
 | ----------------- | ------------------- |
-| Adidas            | $157,500.00         |
-| Emirates          | $325,000.00         |
-| Chevrolet         | $183,333.33         |
-| Coca-Cola         | $230,000.00         |
-| Mastercard        | $313,333.33         |
-| Budweiser         | $286,666.67         |
-| Sony              | $173,333.33         |
-| BP                | $276,666.67         |
+| Emirates          | $325,000.00       |
+| Mastercard        | $313,333.33       |
+| Budweiser         | $286,666.67       |
+| BP                | $276,666.67       |
+| Coca-Cola         | $230,000.00       |
+| Chevrolet         | $183,333.33       |
+| Sony              | $173,333.33       |
+| Adidas            | $157,500.00       |
 
 #### Query 5:
 **Purpose:** 
@@ -492,18 +492,88 @@ Order by
 | 21            | Juan Torres | $2,400,000.00 | Forward       | 12                | 6            | 2.00           |
 | 24            | Felipe Costa | $2,300,000.00 | Winger        | 9                 | 5            | 1.80           |
 | 36            | Tyler Johnson | $2,350,000.00 | Right Wing (RW) | 9                 | 5            | 1.80           |
+
+#### Query 9:
+**Purpose:**
+This query outputs relevant match data for all opponents that the team has played whos team name (not city) starts with a vowel. The PR/Marketing manager wants Athena FC to partner with an opponent and has performed market research to determine that Athena FC could do a mashup using another teams mascot but a team name that starts with a vowel works best. They also wanted to use ticket revenuew to see which teams are popular with other audiences.
+
+**Query:**
+```MySQL
+Select 
+	Date,
+    Opponent, 
+    concat('$', format(Ticket_Revenue, 2)) as TicketRevenue
+From
+	Matches
+Where
+	Opponent regexp'[[:space:]]+[AEIOUaeiou][a-zA-Z]*$'
+Order by
+	TicketRevenue desc;
+```
+**Result:**
+| Date      | Opponent      | TicketRevenue      |
+| --------- | ------------- | ------------------ |
+| 2023-11-05 | Eugene Evergreens | $2,821,000.00      |
+| 2024-01-18 | Albany Alphas | $2,790,000.00      |
+| 2023-11-23 | Orlando Oracles | $2,759,000.00      |
+| 2024-02-15 | Omaha Odyssey | $2,759,000.00      |
+| 2023-10-05 | Albany Alphas | $2,635,000.00      |
+| 2023-11-19 | Omaha Odyssey | $2,635,000.00      |
+
+#### Query 9:
+**Purpose:**
+This query performs a selection on all players who have a total deal value divided by goals scored of less than $50,000. This was needed when the team manager was approached by the players sponsorship manager saying that sponsors wanted to reward their best value players with a bonus of 20 percent of their total deal value.
+
+**Query:**
+```MySQL
+Select
+    p.PlayerID,
+    p.Name,
+    concat('$', format(SUM(s.Deal_Value), 2)) as 'Total Deal Value',
+    p.Goals_Scored,
+    concat('$', format((SUM(s.Deal_Value) / p.Goals_Scored), 2)) as ValuePerGoal,
+    concat('$', format((SUM(s.Deal_Value) * .20), 2)) as Bonus
+From
+    Player p
+Join
+    Sponsorship s on p.PlayerID = s.Player_PlayerID
+Group by 
+    p.PlayerID
+Having
+    p.Goals_Scored > 0 and (SUM(s.Deal_Value) / p.Goals_Scored) < 50000
+Order by
+	ValuePerGoal asc;
+```
+**Result:**
+| PlayerID      | Name      | Total Deal Value      | Goals_Scored      | ValuePerGoal      | Bonus      |
+| ------------- | --------- | --------------------- | ----------------- | ----------------- | ---------- |
+| 11            | Ricardo Silva | $320,000.00           | 21                | $15,238.10        | $64,000.00 |
+| 28            | Felix Müller | $80,000.00            | 4                 | $20,000.00        | $16,000.00 |
+| 2             | Luiz Alves | $600,000.00           | 25                | $24,000.00        | $120,000.00 |
+| 39            | Marco Ferrara | $170,000.00           | 7                 | $24,285.71        | $34,000.00 |
+| 33            | Diego Castillo | $130,000.00           | 5                 | $26,000.00        | $26,000.00 |
+| 35            | Emeka Okafor | $230,000.00           | 8                 | $28,750.00        | $46,000.00 |
+| 37            | Ricardo Silva | $260,000.00           | 9                 | $28,888.89        | $52,000.00 |
+| 27            | Liam Smith | $440,000.00           | 15                | $29,333.33        | $88,000.00 |
+| 36            | Tyler Johnson | $280,000.00           | 9                 | $31,111.11        | $56,000.00 |
+| 32            | Logan Wright | $100,000.00           | 23                | $4,347.83         | $20,000.00 |
+| 24            | Felipe Costa | $360,000.00           | 9                 | $40,000.00        | $72,000.00 |
+| 21            | Juan Torres | $500,000.00           | 12                | $41,666.67        | $100,000.00 |
+| 45            | Antoine Durand | $210,000.00           | 5                 | $42,000.00        | $42,000.00 |
+
 ### Feature Map
-| Feature Map                    | Query 1 | Query 2 | Query 3 | Query 4 | Query 5 | Query 6 | Query 7 | Query 8 |
-|--------------------------------|---------|---------|---------|---------|---------|---------|---------|---------|
-| Multiple Table Join            |    -    |    -    |    -    |    X    |    X    |    X    |    -    |    -    |
-| Traditional Subquery           |    -    |    -    |    -    |    -    |    -    |    -    |    X    |    -    |
-| Correlated Subquery            |    -    |    -    |    -    |    -    |    X    |    -    |    -    |    -    |
-| GROUP BY                       |    -    |    X    |    X    |    X    |    X    |    X    |    -    |    -    |
-| GROUP BY with HAVING           |    -    |    -    |    -    |    -    |    -    |    X    |    -    |    -    |
-| Multi-Condition WHERE          |    -    |    -    |    -    |    -    |    X    |    -    |    X    |    -    |
-| Built-in Functions (e.g., AVG) |    -    |    X    |    X    |    X    |    X    |    -    |    X    |    X    |
-| Calculated Field               |    X    |    -    |    -    |    -    |    X    |    -    |    -    |    X    |
-| NOT EXISTS                     |    -    |    -    |    -    |    -    |    -    |    -    |    X    |    -    |
+| Feature Map                    | Query 1 | Query 2 | Query 3 | Query 4 | Query 5 | Query 6 | Query 7 | Query 8 | Query 9 | Query 10 |
+|--------------------------------|---------|---------|---------|---------|---------|---------|---------|---------|---------|----------|
+| Multiple Table Join            |    -    |    -    |    -    |    X    |    X    |    X    |    -    |    -    |    -    |    -     |
+| Traditional Subquery           |    -    |    -    |    -    |    -    |    -    |    -    |    X    |    -    |    -    |    -     |
+| Correlated Subquery            |    -    |    -    |    -    |    -    |    X    |    -    |    -    |    -    |    -    |    -     |
+| GROUP BY                       |    -    |    X    |    X    |    X    |    X    |    X    |    -    |    -    |    -    |    -     |
+| GROUP BY with HAVING           |    -    |    -    |    -    |    -    |    -    |    X    |    -    |    -    |    -    |    X     |
+| Multi-Condition WHERE          |    -    |    -    |    -    |    -    |    X    |    -    |    X    |    -    |    -    |    -     |
+| Built-in Functions (e.g., AVG) |    -    |    X    |    X    |    X    |    X    |    -    |    X    |    X    |    X    |    X     |
+| Calculated Field               |    X    |    -    |    -    |    -    |    X    |    -    |    -    |    X    |    -    |    X     |
+| NOT EXISTS                     |    -    |    -    |    -    |    -    |    -    |    -    |    X    |    -    |    -    |    -     |
+| RegExp                         |    -    |    -    |    -    |    -    |    -    |    -    |    -    |    -    |    X    |    -     |
 
 ### Team Photo
 Team photo generated by OpenAI's DALL-E Image Generation Model:
