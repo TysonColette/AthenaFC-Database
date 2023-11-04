@@ -1,5 +1,4 @@
--- Simple Queries
-
+use cs_tjc12742;
 -- Query 1: For each player determine the cost per each of the 34 games based on their salary
 Select
     PlayerID,
@@ -35,7 +34,7 @@ Order by
 -- Query 4: What is the average sponsorship deal given by each of the sponsoring companies?
 Select
 	s.Company_Name,
-    concat('$', format(Avg(Deal_Value), 2)) as 'Avg Deal Value'
+    concat('$', format(Avg(Deal_Value), 2)) as AvgDealValue
 From
     Sponsorship ship
 Join
@@ -43,9 +42,7 @@ Join
 Group by
     s.Company_Name
 Order by 
-	'Avg Deal Value' desc;   
-    
--- Complex Queries
+	AvgDealValue desc;   
 
 -- Query 5: Who is the most expensive player for each position?
 Select
@@ -103,7 +100,7 @@ Order by
 Select 
     PlayerID, 
     Name,
-    Salary
+    concat('$', format(Salary, 2)) as 'Salary'
 From
     Player p
 Where 
@@ -128,6 +125,39 @@ Where
     Assists > 0
 Order by
     G2A_Ratio desc;
+
+-- Query 9: Select the Match data for teams whos team name starts with a Vowel (This does not mean city)
+Select 
+	Date,
+    Opponent, 
+    concat('$', format(Ticket_Revenue, 2)) as TicketRevenue
+From
+	Matches
+Where
+	Opponent regexp'[[:space:]]+[AEIOUaeiou][a-zA-Z]*$'
+Order by
+	TicketRevenue desc;
+    
+-- Query 10: Select data for players that are suitable for a 20% bonus
+Select
+    p.PlayerID,
+    p.Name,
+    concat('$', format(SUM(s.Deal_Value), 2)) as 'Total Deal Value',
+    p.Goals_Scored,
+    concat('$', format((SUM(s.Deal_Value) / p.Goals_Scored), 2)) as ValuePerGoal,
+    concat('$', format((SUM(s.Deal_Value) * .20), 2)) as Bonus
+From
+    Player p
+Join
+    Sponsorship s on p.PlayerID = s.Player_PlayerID
+Group by 
+    p.PlayerID
+Having
+    p.Goals_Scored > 0 and (SUM(s.Deal_Value) / p.Goals_Scored) < 50000
+Order by
+	ValuePerGoal asc;
+
+
     
 
 
