@@ -5,7 +5,9 @@
 This project involves a collaborative effort by the students of MIST 4610 class at the University of Georgia to construct a robust relational database for a simulated client scenario, facilitated through the ChatGPT interface at chat.openai.com. 
 
 ## Team Members
-Tyson Colette https://github.com/TysonColette
+Tyson Colette [GitHub](https://github.com/TysonColette)
+
+Dev Davey [GitHub](https://github.com/drd40790)
 
 ## Data Model Construction
 In collaboration with the chosen client scenario via ChatGPT:
