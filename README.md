@@ -73,8 +73,10 @@ After consulting with ChatGPT, the following database was drawn up, taking insig
 ## 3. Populating the Database with Artificial Data 
 ### Player
 The majority of the data was designed to be as realistic as possible.
-For **Player** the aim was to design ficitonal players from all over the world and assign them a name that was suitable. Theres even two French players with the same name!
+For **Player** the aim was to design ficitonal players from all over the world and assign them a name that was suitable. There's even two French players with the same name!
+
 These ficional players were created by ChatGPT using GPT-4.
+
 Here is a sample of the **Player** data input:
 ```MySQL
 Insert into Player 
